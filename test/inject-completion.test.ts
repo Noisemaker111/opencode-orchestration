@@ -19,17 +19,17 @@ const completion: CompletionMetadata = {
   runtime: "native",
 }
 
-test("delivers structured completion metadata as one synthetic record", async () => {
+test("delivers structured completion metadata without a worker navigation route", async () => {
   const calls: unknown[] = []
   expect(await injectCompletion({ synthetic: async (args: unknown) => { calls.push(args) } }, completion)).toBe(true)
   expect(calls).toEqual([{
     sessionID: "ses_parent",
     text: "worker done",
-    metadata: { kind: "subagent.completion", ...completion, navigation: { type: "session", sessionID: "ses_child", parentID: "ses_parent" } },
+    metadata: { kind: "subagent.completion", ...completion },
   }])
 })
 
-test("Claude runtime IDs never become OpenCode navigation metadata", async () => {
+test("runtime IDs remain evidence and never become navigation metadata", async () => {
   const calls: any[] = []
   await injectCompletion({ synthetic: async (args: unknown) => { calls.push(args) } }, {
     ...completion,

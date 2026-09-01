@@ -12,13 +12,10 @@ export async function injectCompletion(
     return false
   }
   try {
-    const navigation = completion.runtime === "native" && completion.openCodeSessionId && /^ses_[A-Za-z0-9_-]+$/.test(completion.openCodeSessionId)
-      ? { type: "session", sessionID: completion.openCodeSessionId, parentID: completion.parentID }
-      : undefined
     await sessionApi.synthetic({
       sessionID: completion.parentID,
       text: completion.summary,
-      metadata: { kind: "subagent.completion", ...completion, ...(navigation ? { navigation } : {}) },
+      metadata: { kind: "subagent.completion", ...completion },
     })
     return true
   } catch (error) {

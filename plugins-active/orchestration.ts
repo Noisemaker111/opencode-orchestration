@@ -5,12 +5,12 @@
  * Policy lives in orchestration.ts at the repo root. This file is the wiring.
  *
  * What it owns:
- *  - the ledger of Task spawns, session bindings and terminal states
+ *  - the ledger of mcp_agent spawns, session bindings and terminal states
  *  - the watchdog that re-injects a completion an idle parent never received
  *  - presentation of spawned tasks (agent labels, task descriptions)
  *
  * Quest binding used to ride these same hooks. It now lives in the quests
- * plugin: both care about a Task starting and finishing, but they answer
+ * plugin: both care about a worker starting and finishing, but they answer
  * different questions, and orchestration must not import quest/.
  */
 import { define } from "@opencode-ai/plugin/v2/promise"
@@ -37,10 +37,15 @@ async function safeToolHook(hook: Function, name: string, fn: Function, essentia
 
 const isSpawn = (event: unknown) => {
   const ev = (event ?? {}) as Record<string, unknown>
-  return /^(task|subagent)$/i.test(String(ev.tool ?? ev.name ?? ""))
+  return /^mcp_agent$/i.test(String(ev.tool ?? ev.name ?? ""))
 }
 
-/** Record Task intent before execution and its result afterwards. */
+const isDispatchAttempt = (event: unknown) => {
+  const ev = (event ?? {}) as Record<string, unknown>
+  return /^(task|subagent|mcp_agent)$/i.test(String(ev.tool ?? ev.name ?? ""))
+}
+
+/** Record mcp_agent intent before execution and its result afterwards. */
 export async function installLedger(ctx: { tool?: { hook?: Function } }) {
   const hook = ctx?.tool?.hook
   if (typeof hook !== "function") return
@@ -53,12 +58,12 @@ export async function installLedger(ctx: { tool?: { hook?: Function } }) {
   })
 }
 
-/** One fail-closed boundary for background mode, identity, and visible title. */
+/** One fail-closed boundary: direct Task is denied and MCP identity is canonical. */
 export async function installCanonicalDispatch(ctx: { tool?: { hook?: Function } }) {
   const hook = ctx?.tool?.hook
   if (typeof hook !== "function") return
   await safeToolHook(hook, "execute.before", (event: unknown) => {
-    if (isSpawn(event)) canonicalizeDispatch(event)
+    if (isDispatchAttempt(event)) canonicalizeDispatch(event)
   }, true)
 }
 

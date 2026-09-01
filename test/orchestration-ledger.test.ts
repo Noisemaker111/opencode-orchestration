@@ -160,8 +160,8 @@ test("orchestration review flow messages the same integration session", () => {
   // runtime — only this assertion kept it alive.
   const skill = readFileSync(join(configRoot, "skills", "review", "SKILL.md"), "utf8")
   const combined = `${orchestrator}\n${injection}\n${skill}`
-  expect(orchestrator).toContain("SAME sessionID")
-  expect(orchestrator).toContain("Do not spawn a separate reviewer")
+  expect(orchestrator).toMatch(/continue the (?:same session|SAME sessionID)/i)
+  expect(orchestrator).toMatch(/review integration yourself/i)
   expect(combined).toContain("integration owner")
   expect(combined).toContain("skills/review")
   expect(combined).toContain("owns the final integrated diff invokes this skill")

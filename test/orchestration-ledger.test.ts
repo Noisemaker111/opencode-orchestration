@@ -153,16 +153,12 @@ test("reconciliation preserves terminal truth and classifies duplicate and unbou
 })
 
 test("orchestration review flow messages the same integration session", () => {
-  const orchestrator = readFileSync(join(configRoot, "agent", "orchestrator.md"), "utf8")
+  const giver = readFileSync(join(configRoot, "agent", "quest-giver.md"), "utf8")
   const injection = readFileSync(join(configRoot, "plugins-active", "favorite-router.ts"), "utf8")
-  // The review contract lives in the orchestrator agent and skills/review.
-  // integration-review-followup.md was a fourth copy that nothing read at
-  // runtime — only this assertion kept it alive.
   const skill = readFileSync(join(configRoot, "skills", "review", "SKILL.md"), "utf8")
-  const combined = `${orchestrator}\n${injection}\n${skill}`
-  expect(orchestrator).toMatch(/continue the (?:same session|SAME sessionID)/i)
-  expect(orchestrator).toMatch(/review integration yourself/i)
-  expect(combined).toContain("integration owner")
+  const combined = `${giver}\n${injection}\n${skill}`
+  expect(giver).toMatch(/continue the same worker sessionID/i)
+  expect(giver).toMatch(/review integration yourself/i)
   expect(combined).toContain("skills/review")
   expect(combined).toContain("owns the final integrated diff invokes this skill")
   expect(combined).not.toContain("then ALWAYS spawn the reviewer subagent")

@@ -9,7 +9,7 @@
  * Three concerns live here:
  *  - the ledger of spawns, bindings and terminal states
  *  - the watchdog that re-injects a completion an idle parent never received
- *  - the live-tasks view (`running_tasks`)
+ *  - tracked child sessions for the live view
  *
  * The watchdog needs the host's session API, so unlike model-routing.ts this
  * module is not host-free; the pieces that can be pure (event parsing, child

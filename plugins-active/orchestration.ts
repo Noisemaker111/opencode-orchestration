@@ -5,7 +5,7 @@
  * Policy lives in orchestration.ts at the repo root. This file is the wiring.
  *
  * What it owns:
- *  - the ledger of mcp_agent spawns, session bindings and terminal states
+ *  - the ledger of Quest subagent spawns, session bindings and terminal states
  *  - the watchdog that re-injects a completion an idle parent never received
  *  - presentation of spawned tasks (agent labels, task descriptions)
  *
@@ -37,15 +37,15 @@ async function safeToolHook(hook: Function, name: string, fn: Function, essentia
 
 const isSpawn = (event: unknown) => {
   const ev = (event ?? {}) as Record<string, unknown>
-  return /^mcp_agent$/i.test(String(ev.tool ?? ev.name ?? ""))
+  return /^(task|subagent)$/i.test(String(ev.tool ?? ev.name ?? ""))
 }
 
 const isDispatchAttempt = (event: unknown) => {
   const ev = (event ?? {}) as Record<string, unknown>
-  return /^(task|subagent|mcp_agent)$/i.test(String(ev.tool ?? ev.name ?? ""))
+  return /^(task|subagent)$/i.test(String(ev.tool ?? ev.name ?? ""))
 }
 
-/** Record mcp_agent intent before execution and its result afterwards. */
+/** Record Quest dispatch intent before execution and its result afterwards. */
 export async function installLedger(ctx: { tool?: { hook?: Function } }) {
   const hook = ctx?.tool?.hook
   if (typeof hook !== "function") return
@@ -58,7 +58,7 @@ export async function installLedger(ctx: { tool?: { hook?: Function } }) {
   })
 }
 
-/** One fail-closed boundary: direct Task is denied and MCP identity is canonical. */
+/** One fail-closed boundary: native subagent identity is canonical. */
 export async function installCanonicalDispatch(ctx: { tool?: { hook?: Function } }) {
   const hook = ctx?.tool?.hook
   if (typeof hook !== "function") return
